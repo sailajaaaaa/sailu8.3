@@ -1,0 +1,135 @@
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+
+public class TipCalculator extends Application {
+
+    @Override
+    public void start(Stage stage) {
+
+        // Create GUI components
+        Label title = new Label("Tip Calculator");
+        Label billLabel = new Label("Bill Amount (₹):");
+        TextField billField = new TextField();
+        billField.setPromptText("Enter bill amount");
+
+        Label tipLabel = new Label("Select Tip Percentage:");
+
+        RadioButton tip5 = new RadioButton("5%");
+        RadioButton tip10 = new RadioButton("10%");
+        RadioButton tip15 = new RadioButton("15%");
+        RadioButton tip20 = new RadioButton("20%");
+
+        ToggleGroup tipGroup = new ToggleGroup();
+        tip5.setToggleGroup(tipGroup);
+        tip10.setToggleGroup(tipGroup);
+        tip15.setToggleGroup(tipGroup);
+        tip20.setToggleGroup(tipGroup);
+        tip15.setSelected(true);
+
+        HBox tipBox = new HBox(10, tip5, tip10, tip15, tip20);
+        tipBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label peopleLabel = new Label("Number of People:");
+        ComboBox<Integer> peopleBox = new ComboBox<>();
+        peopleBox.getItems().addAll(1, 2, 3, 4, 5, 6, 8, 10);
+        peopleBox.setValue(1);
+
+        Button calculateButton = new Button("Calculate Tip");
+        Button clearButton = new Button("Clear");
+
+        Label tipResult = new Label("Tip Amount: ₹0.00");
+        Label totalResult = new Label("Total Bill: ₹0.00");
+        Label personResult = new Label("Per Person: ₹0.00");
+        Label message = new Label();
+
+        // Handle Calculate button click
+        calculateButton.setOnAction(e -> {
+            try {
+                double bill = Double.parseDouble(billField.getText());
+
+                if (bill < 0) {
+                    message.setText("Bill cannot be negative.");
+                    return;
+                }
+
+                double percentage = 15;
+
+                if (tip5.isSelected()) {
+                    percentage = 5;
+                } else if (tip10.isSelected()) {
+                    percentage = 10;
+                } else if (tip15.isSelected()) {
+                    percentage = 15;
+                } else if (tip20.isSelected()) {
+                    percentage = 20;
+                }
+
+                int people = peopleBox.getValue();
+
+                double tip = bill * percentage / 100;
+                double total = bill + tip;
+                double perPerson = total / people;
+
+                tipResult.setText(
+                    String.format("Tip Amount: ₹%.2f", tip)
+                );
+                totalResult.setText(
+                    String.format("Total Bill: ₹%.2f", total)
+                );
+                personResult.setText(
+                    String.format("Per Person: ₹%.2f", perPerson)
+                );
+
+                message.setText("Calculation completed!");
+
+            } catch (NumberFormatException ex) {
+                message.setText("Please enter a valid bill amount.");
+            }
+        });
+
+        // Handle Clear button click
+        clearButton.setOnAction(e -> {
+            billField.clear();
+            tip15.setSelected(true);
+            peopleBox.setValue(1);
+            tipResult.setText("Tip Amount: ₹0.00");
+            totalResult.setText("Total Bill: ₹0.00");
+            personResult.setText("Per Person: ₹0.00");
+            message.setText("");
+        });
+
+        // Arrange components
+        VBox root = new VBox(12);
+        root.setPadding(new Insets(20));
+        root.setAlignment(Pos.CENTER_LEFT);
+
+        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+
+        root.getChildren().addAll(
+            title,
+            billLabel, billField,
+            tipLabel, tipBox,
+            peopleLabel, peopleBox,
+            new HBox(10, calculateButton, clearButton),
+            new Separator(),
+            tipResult, totalResult, personResult,
+            message
+        );
+
+        Scene scene = new Scene(root, 400, 520);
+
+        stage.setTitle("JavaFX Tip Calculator");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
